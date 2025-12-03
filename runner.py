@@ -1,4 +1,4 @@
-import day2.solve
+import day3.solve
 
 # add prompt to provide -i or -s for sample or input?
 # input = "input"
@@ -6,5 +6,5 @@ import day2.solve
 #     print("run with sample input")
 #     input = "sample"
 
-day2.solve
+day3.solve
 
