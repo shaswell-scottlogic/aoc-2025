@@ -29,6 +29,7 @@ print("day 3")
 lines: list[str] = utils.readFileToLines("./day3/input")
 
 # 16907704694511 TOO LOW
+# 168798209663590 YES
 
 lineNumbers = []
 
@@ -40,22 +41,29 @@ for line in lines:
 
     # to find a number with 12 digits you need to find the highest in first n-11
     # then highest after that up to n-10
-    # for everything from 11 down to 0
- 
+    # for everything from 11 down to 0 
     indexes = []
     startSubstringAt = 0
-    endSubstringBefore = len(line)-10
+    endSubstringBefore = len(line)-11
     lastIndexUsed = 0
-    for x in range(0, 11):
-        substringToSearch = line[startSubstringAt : endSubstringAt]
-        # print("finding part " + str(x) + " substring to search: " + substringToSearch)
+    for x in range(0, 12):
+        print()
+        # print("x: " + str(x))
+        print("startSubstringAt: " + str(startSubstringAt))
+        print("endSubstringBefore: " + str(endSubstringBefore))
+        print("lastIndexUsed is " + str(lastIndexUsed))
+
+        substringToSearch = line[startSubstringAt : endSubstringBefore]
+        print("finding part " + str(x) + " substring to search: " + substringToSearch)
 
         lastIndexUsed = startSubstringAt + getIndexOfLargestNumberInString(substringToSearch)
         # print("newIndex is " + str(lastIndexUsed) + "-> " + line[lastIndexUsed])
         indexes.append(lastIndexUsed)
 
         startSubstringAt = lastIndexUsed + 1
-        endSubstringAt = endSubstringAt + 1
+        endSubstringBefore = endSubstringBefore + 1
+        if(endSubstringBefore >= len(line)):
+            endSubstringBefore = len(line)
 
 
     # for n in range(11, -1, -1):
