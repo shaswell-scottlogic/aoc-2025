@@ -21,43 +21,38 @@ def getIndexOfLargestNumberInString(string):
             # print("new largest: " + string[i] + " at position " + str(i))
     
     return indexOfLargest
-            
-
-print("day 3")
-
-# read input
-lines: list[str] = utils.readFileToLines("./day3/input")
-
-# 16907704694511 TOO LOW
-# 168798209663590 YES
-
-lineNumbers = []
 
 # for each line, iterate over finding largest digit that isn't the last one and its index
 # then do the same with the substring from that index to the actual end
 # turn those two into one number
-for line in lines:
-    line = line.strip()  
+def getLargestTwoDigitNumber(line):
+    firstSubstring = line[:-1]
+    indexOfFirstLarge = getIndexOfLargestNumberInString(firstSubstring)
 
-    # to find a number with 12 digits you need to find the highest in first n-11
-    # then highest after that up to n-10
-    # for everything from 11 down to 0 
+    startIndexForSecondSubstring = indexOfFirstLarge + 1
+    secondSubstring = line [startIndexForSecondSubstring :]
+
+    secondLarge = secondSubstring[getIndexOfLargestNumberInString(secondSubstring)]
+
+    combinedNumber = line[indexOfFirstLarge] + secondLarge
+    return combinedNumber
+
+def getLargestTwelveDigitNumber(line):
     indexes = []
     startSubstringAt = 0
     endSubstringBefore = len(line)-11
     lastIndexUsed = 0
     for x in range(0, 12):
-        print()
+        # print()
         # print("x: " + str(x))
-        print("startSubstringAt: " + str(startSubstringAt))
-        print("endSubstringBefore: " + str(endSubstringBefore))
-        print("lastIndexUsed is " + str(lastIndexUsed))
+        # print("startSubstringAt: " + str(startSubstringAt))
+        # print("endSubstringBefore: " + str(endSubstringBefore))
+        # print("lastIndexUsed is " + str(lastIndexUsed))
 
         substringToSearch = line[startSubstringAt : endSubstringBefore]
-        print("finding part " + str(x) + " substring to search: " + substringToSearch)
+        # print("finding part " + str(x) + " substring to search: " + substringToSearch)
 
         lastIndexUsed = startSubstringAt + getIndexOfLargestNumberInString(substringToSearch)
-        # print("newIndex is " + str(lastIndexUsed) + "-> " + line[lastIndexUsed])
         indexes.append(lastIndexUsed)
 
         startSubstringAt = lastIndexUsed + 1
@@ -66,36 +61,32 @@ for line in lines:
             endSubstringBefore = len(line)
 
 
-    # for n in range(11, -1, -1):
-    #     substringStart = lastIndex + 1
-    #     # print("substringStart " + str(substringStart))
-
-    #     substring = line[substringStart : -n]
-    #     print(substring)
-
-    #     lastIndex = substringStart + getIndexOfLargestNumberInString(substring)
-    #     print("newIndex is " + str(lastIndex) + "-> " + line[lastIndex])
-    #     indexes.append(lastIndex)
-
-        # print()
-
-    # firstSubstring = line[:-1]
-    # indexOfFirstLarge = getIndexOfLargestNumberInString(firstSubstring)
-
-    # startIndexForSecondSubstring = indexOfFirstLarge + 1
-    # secondSubstring = line [startIndexForSecondSubstring :]
-
-    # secondLarge = secondSubstring[getIndexOfLargestNumberInString(secondSubstring)]
-
-    # combinedNumber = line[indexOfFirstLarge] + secondLarge
-    
     numbersAtIndexes = [line[i] for i in indexes]
     # print("numbers at indexes: " + str(numbersAtIndexes))
     combinedNumber = ''.join(numbersAtIndexes)
-    # print(combinedNumber)
+    return int(combinedNumber)
 
-    lineNumbers.append(int(combinedNumber))
-    # print(lineNumbers)
-    # print()
+#####################################################################
+print("day 3")
+
+# read input
+lines: list[str] = utils.readFileToLines("./day3/input")
+
+# part 1 answer?
+# 17034
+
+# part 2 answers:
+# 16907704694511 TOO LOW
+# 168798209663590 YES
+
+part1Numbers = []
+part2Numbers = []
+
+for line in lines:
+    line = line.strip()  
     
-print(utils.sumNumbers(lineNumbers))
+    part1Numbers.append(getLargestTwoDigitNumber(line))
+    part2Numbers.append(getLargestTwelveDigitNumber(line))
+    
+print("Part 1 answer is " + str(utils.sumNumbers(part1Numbers)))
+print("Part 2 answer is " + str(utils.sumNumbers(part2Numbers)))
