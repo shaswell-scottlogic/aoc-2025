@@ -12,7 +12,7 @@ def isSameStringTwice(id: str):
     secondHalf = id[halfLength:]
 
     if(firstHalf == secondHalf):
-        print("That's the same string twice")
+        # print("That's the same string twice")
         return True
     
     return False
@@ -22,11 +22,6 @@ primes = [2, 3, 5, 7, 11]
 def containsAnyRepeats(id: str):
     # print(id)
     idLength = len(id)
-
-    # if its length is even then it'd have to be the part1 case 
-    # if(idLength%2 == 0):
-    #     #print("length is even")
-    #     return isSameStringTwice(id)
 
     if(idLength <= 1):
         return False
@@ -63,13 +58,14 @@ def containsAnyRepeats(id: str):
     # print()
     return False
 
-# print("day2")
+print("day2")
 
-invalidIds = []
+part1_invalidIds = []
+part2_invalidIds = []
 
 # read line
 # split on comma
-line = utils.readFile('./day2/input')
+line = utils.readFile('./day2/sample')
 ranges = line.split(',')
 
 # for each idRange
@@ -83,13 +79,22 @@ for idRange in ranges:
     lastInt = int(last)
 
     for i in range( firstInt, lastInt+1):
+        if(isSameStringTwice( str(i) ) == True ):
+            part1_invalidIds.append(i)
         #print("i is " + str(i))
         if( containsAnyRepeats( str(i) ) == True):
-           invalidIds.append(i)
+           part2_invalidIds.append(i)
     
 #print(invalidIds)
 
-# now sum the list
-sumInvalid = utils.sumNumbers(invalidIds)
+# now sum the lists
+part1_sumInvalid = utils.sumNumbers(part1_invalidIds)
 
-print("Sum of invalid Ids is " + str(sumInvalid))
+print("Sum of part 1 invalid Ids is " + str(part1_sumInvalid))
+
+part2_sumInvalid = utils.sumNumbers(part2_invalidIds)
+
+print("Sum of part 2 invalid Ids is " + str(part2_sumInvalid))
+
+# Sum of part 1 invalid Ids is 1227775554
+# Sum of part 2 invalid Ids is 4174379265
