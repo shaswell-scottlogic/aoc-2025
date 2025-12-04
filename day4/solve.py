@@ -11,16 +11,14 @@ maxLineIndex = lineCount - 1
 colCount = len(lines[0])
 maxColIndex = colCount - 1
 
-# for a given cell, find the 8 adjacent ones/cut down to the 9
-# or fewer adjacent ones if you're on an edge/in a corner
+
 def getAdjacentCellContents(l, c):
+    # line, col co-ordinates
+    # (l-1, c-1) (l-1, c) (l-1, c+1)
+    # (l, c-1)   (l, c)   (l, c+1)
+    # (l+1, c-1) (l+1, c) (l+1, c+1)
 
-# line, col co-ordinates
-# (l-1, c-1) (l-1, c) (l-1, c+1)
-# (l, c-1)   (l, c)   (l, c+1)
-# (l+1, c-1) (l+1, c) (l+1, c+1)
-
-    # Doesn't work for tiny grid
+    # Doesn't work for tiny grid, only 3x3 +
 
     # on the top row
     if(l == 0):
@@ -57,20 +55,6 @@ def getAdjacentCellContents(l, c):
             lines[l+1][c-1], lines[l+1][c], lines[l+1][c+1],
             ]
 
-
-    # TODO: check if position exists, and append its content if so
-
-    # if we're not on the top row or left col
-    # if(l > 0 & c > 0):
-    #     # then we can add all the -1s
-    #     adjacentCells.append(lines[l-1][c-1])
-    #     adjacentCells.append(lines[l][c-1])
-
-
-    # # TODO: organise this cleverly
-
-    # return adjacentCells
-
 def mapCharsInListToOnes(string, charString):
     if(string == charString):
         return 1
@@ -106,7 +90,7 @@ for l in range(0, lineCount):
 # part 1 = 1367
 print(str(countAccessible) + " positions are accessible")
 
-# part 2
+# part 2 = 9144
 accessibleStore = []
 accessibleRollsFound = True
 totalAccessibleCount = 0
@@ -123,11 +107,12 @@ while accessibleRollsFound:
     if(len(accessibleStore) == 0):
         accessibleRollsFound = False
 
+    # accumulate
     totalAccessibleCount = totalAccessibleCount + len(accessibleStore)
 
-    # eliminate the ones we're removing
+    # now eliminate the ones we're removing
     for [l, p] in accessibleStore:
-        lines[l] = lines[l][0:p] + "x" + lines[l][p+1:]
+        lines[l] = lines[l][0:p] + "x" + lines[l][p+1:] # there's got to be a nicer way
     accessibleStore = []
 
 print("Part 2 total accessible: " + str(totalAccessibleCount))
