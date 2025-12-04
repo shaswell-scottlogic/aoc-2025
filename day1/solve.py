@@ -27,15 +27,28 @@ def getPasses(position, direction, delta):
 
 # add conditions for hitting 100/0
 
+    # not a new hit
+    if(delta == 0):
+        return 0
+    
+    # number of full rotations
     numPasses = math.floor(delta/100)
 
-    if(direction == 'L'):
-        if(delta%100 > position): # then we're going to or past zero
-            numPasses = numPasses +1
+    # partial rotations
+    simplifiedDelta = delta%100
 
+    
+
+    # # hitting zero
+    # if(applyNewInstruction(position, direction, delta) == 0):
+    #     return numPasses
+
+    if(direction == 'L'):
+        if(delta%100 >= position): # then we're going to or past zero
+            return numPasses + 1
     else:
-        if(position + delta%100 > 100): # then we're going to or past zero
-            numPasses = numPasses +1
+        if(position + delta%100 >= 100): # then we're going to or past zero
+            return numPasses + 1
     
     # print("passes " + str(numPasses))
     return numPasses
@@ -49,7 +62,7 @@ def part1(lines):
     for line in lines:
         # split line by removing first entry
         direction = line[0]
-        delta = int(line[1:len(line)-1])
+        delta = int(line[1:-1])
 
         # do the needful
         newPosition = applyNewInstruction(position, direction, delta)
@@ -64,8 +77,8 @@ def part1(lines):
 
     # (repeat)
 
-    print("Hit zero " + str(zeroHits) + " times")
-    print("Passed zero " + str(zeroPasses) + " times")
+    print("Hit zero " + str(zeroHits) + " times") # answer 3 or 1018
+    print("Passed zero " + str(zeroPasses) + " times") # answer 6 or ...
 
     print("Combined: " + str(zeroHits + zeroPasses))
 
