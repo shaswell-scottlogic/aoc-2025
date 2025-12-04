@@ -60,7 +60,6 @@ def getLargestTwelveDigitNumber(line):
         if(endSubstringBefore >= len(line)):
             endSubstringBefore = len(line)
 
-
     numbersAtIndexes = [line[i] for i in indexes]
     # print("numbers at indexes: " + str(numbersAtIndexes))
     combinedNumber = ''.join(numbersAtIndexes)

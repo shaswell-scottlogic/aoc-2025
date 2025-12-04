@@ -95,7 +95,10 @@ accessibleStore = []
 accessibleRollsFound = True
 totalAccessibleCount = 0
 
+iterations = 0
+
 while accessibleRollsFound:
+    iterations = iterations + 1
 
     for l in range(0, lineCount):
         for p in range(0, colCount):
@@ -116,3 +119,4 @@ while accessibleRollsFound:
     accessibleStore = []
 
 print("Part 2 total accessible: " + str(totalAccessibleCount))
+print("Iteration count: " + str(iterations))
