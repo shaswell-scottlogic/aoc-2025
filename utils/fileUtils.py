@@ -9,3 +9,6 @@ def readFileToLines(path):
     content = file.readlines()
     file.close()
     return content
+
+def stripLines(lines):
+    return [line.strip() for line in lines]
