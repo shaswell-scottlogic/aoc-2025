@@ -14,7 +14,6 @@ maxColIndex = colCount - 1
 # for a given cell, find the 8 adjacent ones/cut down to the 9
 # or fewer adjacent ones if you're on an edge/in a corner
 def getAdjacentCellContents(l, c):
-    adjacentCells = []
 
 # line, col co-ordinates
 # (l-1, c-1) (l-1, c) (l-1, c+1)
@@ -72,8 +71,8 @@ def getAdjacentCellContents(l, c):
 
     # return adjacentCells
 
-def mapCellContentToOnes(string):
-    if(string == "@"):
+def mapCharsInListToOnes(string, charString):
+    if(string == charString):
         return 1
     else:
         return 0
@@ -86,13 +85,12 @@ def hasAtLeast4AdjacentRolls(line, col):
     
     adjacentCells = getAdjacentCellContents(line, col)
     # map @ -> 1, . => 0 then can sum it to get answers
-    adjacentCounts = [mapCellContentToOnes(cell) for cell in adjacentCells]
+    adjacentCounts = [mapCharsInListToOnes(cell, "@") for cell in adjacentCells]
     
     return utils.sumNumbers(adjacentCounts) >= 4
 
 
 countAccessible = 0
-
 # need indexes
 for l in range(0, lineCount):
     for p in range(0, colCount):
@@ -107,3 +105,29 @@ for l in range(0, lineCount):
 
 # part 1 = 1367
 print(str(countAccessible) + " positions are accessible")
+
+# part 2
+accessibleStore = []
+accessibleRollsFound = True
+totalAccessibleCount = 0
+
+while accessibleRollsFound:
+
+    for l in range(0, lineCount):
+        for p in range(0, colCount):
+            if(lines[l][p] == "@"):
+                if(hasAtLeast4AdjacentRolls(l, p) == False):
+                    accessibleStore.append([l, p])
+
+    # we didn't find anything else accessible
+    if(len(accessibleStore) == 0):
+        accessibleRollsFound = False
+
+    totalAccessibleCount = totalAccessibleCount + len(accessibleStore)
+
+    # eliminate the ones we're removing
+    for [l, p] in accessibleStore:
+        lines[l] = lines[l][0:p] + "x" + lines[l][p+1:]
+    accessibleStore = []
+
+print("Part 2 total accessible: " + str(totalAccessibleCount))
