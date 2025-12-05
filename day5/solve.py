@@ -62,9 +62,8 @@ ids.sort()
 # print("Range count: " + str(len(ranges)))
 # print("ID count " + str(len(ids)))
 
-# TODO: could force to set to dedupe IDs and ranges?
-
-# TODO: condense ranges
+# could force to set to dedupe IDs and ranges?
+# could condense ranges
 
 candidateIds = ids
 freshIds = []
@@ -79,32 +78,32 @@ for range in ranges:
             # print(str(id) + " is fresh because it is in range " + str(range))
         else:
             remainingIds.append(id)
+
+            # if we've gone past the max, skip the rest of the candidate ids
+            if(id > range[1]):
+                remainingIds = remainingIds + candidateIds[candidateIds.index(id)+1:]
+                break
     
     candidateIds = remainingIds
+    if(len(remainingIds) == 0):
+        break
 
 # print(freshIds)
 # 862
 print("Part 1: Count of fresh ingredients is: " + str(len(freshIds)))
 
 # part 2 needs to find every ID that is in a range
-# can't consider _every_ number
-# condense the ranges?
-
-# recursive range check?
-# build up new set of ranges by going over range and ammending previous range?
+# can't consider _every_ number, so condense the ranges?
 
 # ASSUME MINS ARE IN ORDER
 newRangeSet = []
 currentRange = [0,0]
 for range in ranges:
-    # if(len(newRangeSet==0)):
-    #     newRangeSet.append(range)
-    # else:
-        # check if this range overlaps with the last one
-        # we already know min r2 > min 1 because we sorted it earlier
 
         currentMin, currentMax = currentRange
         newMin, newMax = range
+        
+        # we already know new min >= old min because we sorted it earlier
 
         # if new min > old max -> new disjoint range
         if(newMin > currentMax):
@@ -126,14 +125,4 @@ for range in newRangeSet:
     idCount += (range[1]-range[0]) +1
 
 # 357907198933892
-print("part 2 idCount: " + str(idCount))
-
-# for each ingredient, find the last range whose start is lower than the id
-# check if the end is lower too?
-# -> what about overlaps?
-
-# slightly better: go through ranges seeing which IDs are in them
-# better: drop out sooner based on sorting
-#  i.e. if ID is larger than max of range, forget the rest of the IDs
-# when an ID is confirmed in, drop it from the list
-
+print("Part 2 id count: " + str(idCount))
