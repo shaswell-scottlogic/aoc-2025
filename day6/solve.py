@@ -2,37 +2,80 @@ import utils
 
 print("Solve day 6")
 
-
 # read in input, strip
 input: list[str] = utils.readFileToLines("./day6/input", strip=True)
 
-# somehow cut out repeated whitespace in lines?
-# -> split lines on space and remove all entries that are empty
-lines = [utils.removeAllInstancesOf(line.split(" "), "") for line in input]
+# cut out (repeated) whitespace in lines - splitting two spaces on space gives an empty string
+inputLines = [line.split(" ") for line in input]
 # print(problems)
 
-# check that we've got the same number of entries in every line
-problemCount = len(lines[0])
-if(any([len(line)!=problemCount for line in lines])):
-    print("Something is wonky")
+problemCount = len(utils.removeAllInstancesOf(inputLines[0], ""))
+print("I got " + str(problemCount) + " problems")
+
+operators = utils.removeAllInstancesOf(inputLines[-1], "")
+
+def getProblemInputAtIndex_part1(index, lines):
+    lines = [utils.removeAllInstancesOf(line, "") for line in lines]
+    # print(lines)
+    # check that we've got the same number of entries in every line
+    if(any([len(line)!=problemCount for line in lines])):
+        print("Something is wonky")
+        exit()
+
+    return [int(line[index]) for line in lines[:-1]]
+
+def getProblemInputAtIndex_part2(index, lines):
+    jumblyNumberStrings = [line[index] for line in lines[:-1]]
+
+    # get the length of the longest numberString
+    # or iterate, removing
+    remainingJumble = jumblyNumberStrings
+    piecedNumberStrings = []
+
+    # while len(remainingJumble) != 0:
+
+    #     tempRemaining = []
+    #     newPiecedNumberString =  ""
+    #     for group in remainingJumble:
+    #         # take first element and add it
+    #         newPiecedNumberString += group[0]
+
+    #         # if there's anything left, keep it for the next round
+    #         if(len(group) > 1):
+    #             tempRemaining.append(group[1:])
+        
+    #     piecedNumberStrings.append(newPiecedNumberString)
+    #     remainingJumble = tempRemaining
+
+    return [int(numberString) for numberString in piecedNumberStrings]
 
 # for every index, do the sum
-accumulator = 0
+accumulator_part1 = 0
+accumulator_part2 = 0
+
 for index in range(0, problemCount):
     # TODO: is it always an int?!
-    numbers = [int(line[index]) for line in lines[:-1]]
-    # print(numbers)
+    numbers_part1 = getProblemInputAtIndex_part1(index, inputLines)
+    print(numbers_part1)
 
-    operator = lines[-1][index]
+    numbers_part2 = getProblemInputAtIndex_part2(index, inputLines)
+    # print(numbers_part2)
+
+    operator = operators[index]
     # print(operator)
 
-    problemAnswer = 0
+    problemAnswer_part1 = 0
+    problemAnswer_part2 = 0
     if(operator == "+"):
-        problemAnswer = utils.sumNumbers(numbers)
+        problemAnswer_part1 = utils.sumNumbers(numbers_part1)
+        problemAnswer_part2 = utils.sumNumbers(numbers_part2)
     elif(operator == "*"):
-        problemAnswer = utils.multiplyNumbers(numbers)
+        problemAnswer_part1 = utils.multiplyNumbers(numbers_part1)
+        problemAnswer_part2 = utils.multiplyNumbers(numbers_part2)
 
-    accumulator += problemAnswer
+    accumulator_part1 += problemAnswer_part1
+    accumulator_part2 += problemAnswer_part2
 
 # 4277556 / 4951502530386
-print("Part 1: sum of problem answers: " + str(accumulator))
+print("Part 1: sum of problem answers: " + str(accumulator_part1))
+print("Part 2: sum of problem answers: " + str(accumulator_part2))
