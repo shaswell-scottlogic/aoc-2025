@@ -1,5 +1,21 @@
 import math
 
+def chunkLineInto(line: str, numChunks: int):
+
+    chunkSize = math.ceil(len(line)/numChunks)
+    print("Chunk size: " + str(chunkSize))
+
+    chunks = []
+
+    remainingLine = line
+    for i in range(0, numChunks):
+        if(len(remainingLine) < chunkSize):
+            chunks.append(remainingLine)
+        else:
+            chunks.append(remainingLine[:chunkSize])
+            remainingLine = remainingLine[chunkSize:]
+    return chunks
+
 def chunkLine(line: str, chunkSize: int):
     chunks = []
     numChunks = math.ceil(len(line) / chunkSize)
