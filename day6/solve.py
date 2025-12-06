@@ -1,4 +1,5 @@
 import utils
+import math
 
 print("Solve day 6")
 
@@ -6,13 +7,14 @@ print("Solve day 6")
 input: list[str] = utils.readFileToLines("./day6/sample", strip=True)
 
 # cut out (repeated) whitespace in lines - splitting two spaces on space gives an empty string
-inputLines = [line.split(" ") for line in input]
-# print(problems)
+splitInputLines = [line.split(" ") for line in input]
+# print(splitInputLines)
+# print(len(splitInputLines))
 
-problemCount = len(utils.removeAllInstancesOf(inputLines[0], ""))
+problemCount = len(utils.removeAllInstancesOf(splitInputLines[0], ""))
 print("I got " + str(problemCount) + " problems")
 
-operators = utils.removeAllInstancesOf(inputLines[-1], "")
+operators = utils.removeAllInstancesOf(splitInputLines[-1], "")
 
 def getProblemInputAtIndex_part1(index, lines):
     lines = [utils.removeAllInstancesOf(line, "") for line in lines]
@@ -27,30 +29,38 @@ def getProblemInputAtIndex_part1(index, lines):
 def getProblemInputAtIndex_part2(index, lines):
     # actually don't split on space
     # TODO: split each line into chunks of lineLength/problemCount
-    # then do this nonsense
+    # then do nonsense that relies on indexes
 
-    jumblyNumberStrings = [line[index] for line in lines[:-1]]
+    # TODO: could just put 4 in
+    chunkSize = math.ceil((len(lines[0]))/problemCount)
+    print(chunkSize)
 
-    # get the length of the longest numberString
-    # or iterate, removing
-    remainingJumble = jumblyNumberStrings
+    # add a space on the front to get chunks right
+    chunks = utils.chunkLine(" " + lines[index], chunkSize=chunkSize)
+    print(chunks)
+
+    # jumblyNumberStrings = [line[index] for line in lines[:-1]]
+
+    # # get the length of the longest numberString
+    # # or iterate, removing
+    # remainingJumble = jumblyNumberStrings
     piecedNumberStrings = []
 
-    while len(remainingJumble) != 0:
-        tempRemaining = []
-        newPiecedNumberString =  ""
+    # while len(remainingJumble) != 0:
+    #     tempRemaining = []
+    #     newPiecedNumberString =  ""
 
-        for group in remainingJumble:
-            print("Looking at group: " + group)
-            # take first element and add it
-            # newPiecedNumberString += group[0]
+    #     for group in remainingJumble:
+    #         print("Looking at group: " + group)
+    #         # take first element and add it
+    #         # newPiecedNumberString += group[0]
 
-            # if there's anything left, keep it for the next round
-            # if(len(group) > 1):
-            #     tempRemaining.append(group[1:])
+    #         # if there's anything left, keep it for the next round
+    #         # if(len(group) > 1):
+    #         #     tempRemaining.append(group[1:])
         
-        piecedNumberStrings.append(newPiecedNumberString)
-        remainingJumble = tempRemaining
+    #     piecedNumberStrings.append(newPiecedNumberString)
+    #     remainingJumble = tempRemaining
 
     return [int(numberString) for numberString in piecedNumberStrings]
 
@@ -60,10 +70,10 @@ accumulator_part2 = 0
 
 for index in range(0, problemCount):
     # TODO: is it always an int?!
-    numbers_part1 = getProblemInputAtIndex_part1(index, inputLines)
+    numbers_part1 = getProblemInputAtIndex_part1(index, splitInputLines)
     # print(numbers_part1)
 
-    numbers_part2 = getProblemInputAtIndex_part2(index, inputLines)
+    numbers_part2 = getProblemInputAtIndex_part2(index, input[:-1])
     print(numbers_part2)
 
     operator = operators[index]
