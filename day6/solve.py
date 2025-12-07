@@ -1,20 +1,17 @@
 import utils
-import math
 
 print("Solve day 6")
 
 # read in input, strip
-input: list[str] = utils.readFileToLines("./day6/sample", strip=True)
+input: list[str] = utils.readFileToLines("./day6/input")
+input = [line.rstrip() for line in input]
 
 # cut out (repeated) whitespace in lines - splitting two spaces on space gives an empty string
 splitInputLines = [line.split(" ") for line in input]
-# print(splitInputLines)
-# print(len(splitInputLines))
-
-problemCount = len(utils.removeAllInstancesOf(splitInputLines[0], ""))
-print("I got " + str(problemCount) + " problems")
 
 operators = utils.removeAllInstancesOf(splitInputLines[-1], "")
+problemCount = len(operators)
+print("I got " + str(problemCount) + " problems")
 
 def getProblemInputAtIndex_part1(index, lines):
     lines = [utils.removeAllInstancesOf(line, "") for line in lines]
@@ -26,55 +23,39 @@ def getProblemInputAtIndex_part1(index, lines):
 
     return [int(line[index]) for line in lines[:-1]]
 
-def getProblemInputAtIndex_part2(index, lines):
-    # actually don't split on space
-    # TODO: split each line into chunks of lineLength/problemCount
-    # then do nonsense that relies on indexes
+def getNumbersFromChunkColumn(column):
+    # works because I chunked with pad=True
+    chunkSize = len(column[0])
 
-    # TODO: could just put 4 in
-    chunkSize = math.ceil((len(lines[0]))/problemCount)
-    print(chunkSize)
+    # we're getting chunksize=4 numbers
+    numbers = []
+    for i in range (0, chunkSize):
+        newNumberString = [chunk[i] for chunk in column]
+        # print(newNumberString)
+        newNumberString = utils.removeAllInstancesOf(newNumberString, " ")
+        newNumber = ''.join(newNumberString)
 
-    # add a space on the front to get chunks right
-    chunks = utils.chunkLine(" " + lines[index], chunkSize=chunkSize)
-    print(chunks)
-
-    # jumblyNumberStrings = [line[index] for line in lines[:-1]]
-
-    # # get the length of the longest numberString
-    # # or iterate, removing
-    # remainingJumble = jumblyNumberStrings
-    piecedNumberStrings = []
-
-    # while len(remainingJumble) != 0:
-    #     tempRemaining = []
-    #     newPiecedNumberString =  ""
-
-    #     for group in remainingJumble:
-    #         print("Looking at group: " + group)
-    #         # take first element and add it
-    #         # newPiecedNumberString += group[0]
-
-    #         # if there's anything left, keep it for the next round
-    #         # if(len(group) > 1):
-    #         #     tempRemaining.append(group[1:])
-        
-    #     piecedNumberStrings.append(newPiecedNumberString)
-    #     remainingJumble = tempRemaining
-
-    return [int(numberString) for numberString in piecedNumberStrings]
+        if(len(newNumber)>0):
+            numbers.append(int(newNumber))
+    return numbers
 
 # for every index, do the sum
 accumulator_part1 = 0
 accumulator_part2 = 0
+
+# need to chunk the input here for part 2
+# chunks are the numbers as strings with the whitespace in
+chunks = [utils.chunkLineInto(line, problemCount, pad=True) for line in input[:-1]]
+# print(chunks)
 
 for index in range(0, problemCount):
     # TODO: is it always an int?!
     numbers_part1 = getProblemInputAtIndex_part1(index, splitInputLines)
     # print(numbers_part1)
 
-    numbers_part2 = getProblemInputAtIndex_part2(index, input[:-1])
-    print(numbers_part2)
+    column = [chunk[index] for chunk in chunks]
+    # print(column)
+    numbers_part2 = getNumbersFromChunkColumn(column)
 
     operator = operators[index]
     # print(operator)
@@ -93,4 +74,5 @@ for index in range(0, problemCount):
 
 # 4277556 / 4951502530386
 print("Part 1: sum of problem answers: " + str(accumulator_part1))
+# 3263827 / NOT 3253027141130512 - too high
 print("Part 2: sum of problem answers: " + str(accumulator_part2))
