@@ -1,6 +1,6 @@
 import math
 
-def chunkLineInto(line: str, numChunks: int):
+def chunkLineInto(line: str, numChunks: int, pad: bool):
 
     chunkSize = math.ceil(len(line)/numChunks)
     print("Chunk size: " + str(chunkSize))
@@ -10,6 +10,8 @@ def chunkLineInto(line: str, numChunks: int):
     remainingLine = line
     for i in range(0, numChunks):
         if(len(remainingLine) < chunkSize):
+            if(pad):
+                remainingLine = remainingLine.ljust(chunkSize)
             chunks.append(remainingLine)
         else:
             chunks.append(remainingLine[:chunkSize])
@@ -19,7 +21,7 @@ def chunkLineInto(line: str, numChunks: int):
 def chunkLine(line: str, chunkSize: int):
     chunks = []
     numChunks = math.ceil(len(line) / chunkSize)
-    print("making " + str(numChunks) + " chunks")
+    # print("making " + str(numChunks) + " chunks")
 
     # always allowing for extra
     for i in range(0, numChunks):
