@@ -23,39 +23,55 @@ def getProblemInputAtIndex_part1(index, lines):
 
     return [int(line[index]) for line in lines[:-1]]
 
-def getNumbersFromChunkColumn(column):
-    # works because I chunked with pad=True
-    chunkSize = len(column[0])
+def horribleChunking():
+    inputLength = max([len(line) for line in input])
 
-    # we're getting chunksize=4 numbers
-    numbers = []
-    for i in range (0, chunkSize):
-        newNumberString = [chunk[i] for chunk in column]
-        # print(newNumberString)
-        newNumberString = utils.removeAllInstancesOf(newNumberString, " ")
-        newNumber = ''.join(newNumberString)
+    # iterate across input building chunks
+    chunks = []
+    currentChunk = []
+    for i in range(0, inputLength):
+        currentCol = [line.ljust(inputLength)[i] for line in input[:-1]]
+        # print("Current col is " + str(currentCol))
 
-        if(len(newNumber)>0):
-            numbers.append(int(newNumber))
-    return numbers
+        if(all([x == ' ' for x in currentCol])):
+            # print("found chunk end")
+            chunks.append(currentChunk)
+            currentChunk = []
+        else:
+            currentChunk.append(currentCol)
+
+    chunks.append(currentChunk)
+
+    # now each chunk is a problem
+    # print(chunks)
+    return chunks
+
+# need to chunk the input for part 2
+chunks = horribleChunking()
+part2Problems = []
+for chunk in chunks:
+    problem = []
+    for rawNumber in chunk:
+        number = ''.join(utils.removeAllInstancesOf(rawNumber, " "))
+
+        if(len(number) > 0):
+            problem.append(int(number))
+    
+    part2Problems.append(problem)
 
 # for every index, do the sum
 accumulator_part1 = 0
 accumulator_part2 = 0
-
-# need to chunk the input here for part 2
-# chunks are the numbers as strings with the whitespace in
-chunks = [utils.chunkLineInto(line, problemCount, pad=True) for line in input[:-1]]
-# print(chunks)
+            
+# print(problems)
+print("I got " + str(len(part2Problems)) + " problems")
 
 for index in range(0, problemCount):
     # TODO: is it always an int?!
     numbers_part1 = getProblemInputAtIndex_part1(index, splitInputLines)
     # print(numbers_part1)
 
-    column = [chunk[index] for chunk in chunks]
-    # print(column)
-    numbers_part2 = getNumbersFromChunkColumn(column)
+    numbers_part2 = part2Problems[index]
 
     operator = operators[index]
     # print(operator)
@@ -74,5 +90,5 @@ for index in range(0, problemCount):
 
 # 4277556 / 4951502530386
 print("Part 1: sum of problem answers: " + str(accumulator_part1))
-# 3263827 / NOT 3253027141130512 - too high
+# 3263827 / NOT 3253027141130512 - too high -> 8486156119946
 print("Part 2: sum of problem answers: " + str(accumulator_part2))
