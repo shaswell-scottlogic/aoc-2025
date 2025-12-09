@@ -60,9 +60,7 @@ def getAffectedCircuits(pair: list[list[int]], circuits: list[list[int]]):
     if(len(affectedCircuits) > 2):
         print("More than two circuits affected")
         exit()
-    
-    # not de-duping these... questionable?
-    # print("affected/unaffected: " + str(len(affectedCircuits)) + " / " + str(len(unaffectedCircuits)))
+
     return [affectedCircuits, unaffectedCircuits]
 
 def mergeCircuits(circuitA, circuitB):
@@ -101,7 +99,7 @@ keys.sort()
 pointsAdded = 0
 connectionsMade = 0
 circuits = []
-
+lastPair = []
 # iterate over keys
 for distance in (keys):
     pairs = distanceDict[distance]
@@ -123,15 +121,16 @@ for distance in (keys):
                 pointsAdded = pointsAdded + 2
             case 1:
                 # only one circuit is affected
-                # so it already contains one of the points, and we need to add the other to it
+                # so it already contains at least one of the points, and we need to add the other to it
                 # print("adding points to existing circuit")
                 if pair[0] not in affectedCircuits[0]:
                     affectedCircuits[0].append(pair[0])
+                    pointsAdded = pointsAdded + 1
 
                 if pair[1] not in affectedCircuits[0]:
                     affectedCircuits[0].append(pair[1])
+                    pointsAdded = pointsAdded + 1
 
-                pointsAdded = pointsAdded + 1
             case 2:
                 # adding no new points, but combining circuits
                 # print("merging two circuits")
@@ -143,15 +142,24 @@ for distance in (keys):
         circuits = affectedCircuits + unaffectedCircuits
         connectionsMade = connectionsMade + 1
         # print(circuits)
+        lastPair = pair
 
-    # check if we've hit 1000 points added, NO connections made
-    if(connectionsMade >= 1000):
-        print(">1000 connections in " + str(len(circuits)) + " circuits")
-        break
+        # check if we've hit 1000 connections made
+        if(connectionsMade == 1000):
+            print("1000 connections in " + str(len(circuits)) + " circuits")                
+            sizes = [len(circuit) for circuit in circuits]
+            sizes.sort(reverse=True)
+            print(sizes)
+            answer = sizes[0]*sizes[1]*sizes[2]
+            print("Part 1: " + str(answer)) # 79560
+        
+        if(len(circuits)==1 and pointsAdded >=1000):
+            print("One big happy circuit, breaking!")
+            print("Points added: " + str(pointsAdded))
+            print("Original coordinates: " + str(len(coordinates)))
+            part2Answer = lastPair[0][0]*lastPair[1][0]
+            print("Part 2 answer: " + str(part2Answer)) # NOT 284965416, too high. 7552751378 also too high
+            # 31182420
+            exit()
 
-# print(circuits)
-sizes = [len(circuit) for circuit in circuits]
-sizes.sort(reverse=True)
-print(sizes)
-answer = sizes[0]*sizes[1]*sizes[2]
-print("Part 1: " + str(answer)) # 79560
+
