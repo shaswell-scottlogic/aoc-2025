@@ -57,7 +57,7 @@ def getPointsBetweenPoints(a, b):
 
 print("Solve day 9")
 
-lines: list[str] = utils.readFileToLines('./day9/sample', strip = True)
+lines: list[str] = utils.readFileToLines('./day9/input', strip = True)
 
 # find tiles with min and max coordinates in each direction
 # find areas in rectangles created by them
@@ -202,7 +202,7 @@ def areAllPointsInShape(rectangle):
         
         for y in range(yStart, yStop+1):
             # print("y" + str(y))
-            print("Looking at " + str(x) + "," + str(y))
+            # print("Looking at " + str(x) + "," + str(y))
             pointInShape = pointIsInShape(x, y)
             if(not pointInShape ):
                 # print("NOPE")
@@ -215,38 +215,20 @@ timeToStop = False
 # for candidateRectangle in area dict -> defined by co-ordinates
 for key in keys:
     rectangles = areaDict[key]
-    print(rectangles)
+    # print(rectangles)
     for rectangle in rectangles:
-        print(rectangle)
+        # print(rectangle)
         rectangle = sortCoordinatePair(rectangle[0], rectangle[1])
         print("Look at rectangle defined by " + str(rectangle))
         if(areAllPointsInShape(rectangle)):
             print("Part 2: " + str(key))
             exit()
-        # a, b = rectangle
-        # # print(a)
-        # # print(b)
-        # # iterate over rectangle, check where in slices points fall
-        # for x in range(a[0], b[0]+1):
-        #     print("x" + str(x))
-
-        #     rangeSize = abs(1 + a[1]-b[1])
-        #     if(a[1]>b[1]):
-        #         start = b[1]
-        #         stop = a[1]
-        #     else:
-        #         start = a[1]
-        #         stop = b[1]
-            
-        #     for y in range(start, stop):
-        #         print("y" + str(y))
-        #         print("Looking at " + str(x) + "," + str(y))
-        #         if( not pointIsInShape(x, y)):
-        #             # how to break out hard enough?
-        #             break
+        
+        # TODO: use range syntax? over rows - from earlier problems
 
 # get all the points inside the rectangle
 # check if any of them are outside?
 # start from the opposite corners
-
-
+# should I have started from smallest rectangle? No, can't assume they're all good
+# can I remove rectangles that are strictly inside other ones? Only if the bigger ones are good
+# flip that - if I find a bad rectangle, I can remove any that contain it
