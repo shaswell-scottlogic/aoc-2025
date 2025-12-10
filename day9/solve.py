@@ -59,12 +59,7 @@ print("Solve day 9")
 
 lines: list[str] = utils.readFileToLines('./day9/input', strip = True)
 
-# find tiles with min and max coordinates in each direction
-# find areas in rectangles created by them
-# pick the largest
-
 coordinates = [[int(numberString) for numberString in line.split(",")] for line in lines]
-# print(coordinates)
 
 areaDict = {}
 # for point at index i, only need to check it against points at i+1 on because the earlier ones will have been done
@@ -93,6 +88,8 @@ print("Part 1: " + str(keys[0])) # 4749838800
 # part 2
 
 greenTiles = []
+xShapeRanges = {}
+yShapeRanges = {}
 # for each sliding window on pair of red tiles, all the ones between are green
 for i in range(0, len(coordinates)):
     # last one loops around to first
@@ -103,16 +100,67 @@ for i in range(0, len(coordinates)):
 
     greenTiles = greenTiles + getPointsBetweenPoints(currentTile, prevTile)
 
+    # figure out which is bigger/smaller, and arrange them as needed
+    # if(currentTile[0]==prevTile[0]): # on the same x val
+    #     # print("same column")
+    #     x = currentTile[0]
+    #     newRange = [ prevTile[1], currentTile[1] ]
+    #     newRange.sort()
+    #     # print("Adding range " + str(newRange) + " to x=" + str(x))
+    #     if(x in xShapeRanges):
+    #         xShapeRanges[x].append(newRange)
+    #     else:
+    #         xShapeRanges[x] = [newRange]
+    
+    # if(currentTile[1]==prevTile[1]): # on the same y val
+    #     # print("same row")
+    #     y = currentTile[1]
+    #     newRange = [ prevTile[0], currentTile[0] ]
+    #     newRange.sort()
+    #     # print("Adding range " + str(newRange) + "to y=" + str(y))
+    #     if(y in yShapeRanges):
+    #         yShapeRanges[y].append(newRange)
+    #     else:
+    #         yShapeRanges[y] = [newRange]
+
 # print(greenTiles)
 # print(len(greenTiles))
+# print(xShapeRanges)
+# print(yShapeRanges)
 
-edgeTiles = greenTiles + coordinates
-print(str(len(edgeTiles)) + " edge tiles")
-# TODO: force edge tiles to set?
-# TODO: consider sorting?
+def getMin(range):
+    return range[0]
 
-# TODO: format edge tiles into two listy things?
-# e.g. edge at row -> [ 3, 4, 4, 5 ]
+def mergeRanges(ranges):
+    ranges.sort(key = getMin)
+
+    newRanges = []
+    currentRange = [0,0]
+    for range in ranges:
+        range.sort()
+
+        currentMin, currentMax = currentRange
+        newMin, newMax = range
+        
+        # we already know new min >= old min because we sorted it earlier
+
+        # if new min > old max -> new disjoint range
+        if(newMin > currentMax):
+            if(currentMin != 0):
+                newRanges.append(currentRange)
+            currentRange = range
+        else:
+            # if new max is > old max -> extend current range
+            if(newMax > currentMax):
+                currentRange[1] = newMax
+        # if new max is <= old max -> old max covers it
+
+    # one last time to catch the one we were working on
+    newRanges.append(currentRange)
+    return newRanges
+
+edgeTiles = greenTiles + coordinates + coordinates
+# print(str(len(edgeTiles)) + " edge tiles")
 
 xSlices = {}
 ySlices = {}
@@ -130,19 +178,65 @@ for tile in edgeTiles:
         ySlices[y].append(x)
     ySlices[y].sort()
 
+def sliceToRanges(slice: list[int]):
+    # print(slice)
+    ranges = []
 
-# how do you find what's inside a shape?
-# look at all the edge crossings on a line and see if point has crossed an odd or even number of edges?
-# ...|...|....
-# for thin incursions, double count the edges -> don't dedupe
+    currentMin = slice[0]
+    currentMax = slice[0]
+    i = 1
+    while i < len(slice):
+        # same number means an incursion OR protrusion
+        if(slice[i] == currentMax and currentMin == currentMax):
+            if(i==1 or i==len(slice)-1): # repeat at start/end is fine 
+                i = i+1
+                continue             
+            # if i is odd/even
+            if(i%2 ==0): # thin incursion - delete both and skip to next
+                currentMax = slice[i+1]
+            else: # thin protrusion, add silly little range
+                ranges.append([currentMin, currentMax])
+                currentMin = slice[i+1]
+                currentMax = slice[i+1]
+                i = i+2
+        elif(slice[i] == currentMax+1):# number + 1 means increase max (because we're inclusive)
+            currentMax = slice[i]
+        elif(currentMin != currentMax): # we're at the end of a range?
+                ranges.append([currentMin, currentMax])
+                currentMin = slice[i]
+                currentMax = slice[i]
+        else: # we've found the other side of our range, for now
+                currentMax = slice[i]
 
-# for each tile inside the square, is it on an edge?
-# how many edges are each side of it in each dimension?
+        i=i+1
 
-# slice through, by creating an array of edge coordinates sorted by x or y
-# for each point you want to check, check the mod value of the last edge coordinate that was less than it
+    ranges.append([currentMin, currentMax])
+    # print(ranges)
+    return ranges
 
-def pointIsInShape(x, y):
+xShapeRanges = {}
+yShapeRanges = {}
+for sliceKey in xSlices:
+    xShapeRanges[sliceKey] = sliceToRanges(xSlices[sliceKey])
+for sliceKey in ySlices:
+    yShapeRanges[sliceKey] = sliceToRanges(ySlices[sliceKey])
+# print(xShapeRanges)
+# print(yShapeRanges)
+
+for x in xShapeRanges:
+    rangeSet = xShapeRanges[x]
+    if(len(rangeSet) > 1):
+        xShapeRanges[x] = mergeRanges(rangeSet)
+for y in yShapeRanges:
+    rangeSet = yShapeRanges[y]
+    if(len(rangeSet) > 1):
+        yShapeRanges[y] = mergeRanges(rangeSet)
+
+# print(xShapeRanges)
+# print(yShapeRanges)
+print("Merged ranges done")
+
+def pointIsInShape(x, y, edgeTiles, xSlices, ySlices):
     # print(str(x) + "," + str(y))
     if([x,y] in edgeTiles): 
         # print("Is edge, YARP")
@@ -159,7 +253,7 @@ def pointIsInShape(x, y):
     if(y < xSlices[x][0] or y > xSlices[x][-1]):
         # print("Well outside")
         return False
-    
+
     # otherwise, find last index less than
     for i in range(0, len(ySlices[y])):
         # print(ySlices[y])
@@ -175,11 +269,18 @@ def pointIsInShape(x, y):
             # print(xSlices[x])
             if(i%2 == 0):
                 return False
-            
+        
     return True
 
 def areAllPointsInShape(rectangle):
     a, b = rectangle
+
+    # check opposite corners
+    c1 = [a[0], b[1]]
+    c2 = [a[1], b[0]]
+
+    # if rectangle contains known bad points
+    # if range of points in rectangle overlaps with any bad ranges...
 
     xRangeSize = abs(1 + a[0]-b[0])
     if(a[0]>b[0]):
@@ -210,6 +311,60 @@ def areAllPointsInShape(rectangle):
             
     return True
 
+def isInRange(x: int, range: list[int]):
+    min, max = range
+    # print("checking if " + str(x) + " is in range " + str(min) + " to " + str(max))
+
+    if(x >= min):
+        if(x <= max):
+            return True
+    return False
+
+def areRectangleEdgesInRanges(rectangle):
+    a, b = rectangle
+    
+    rectangleXRange = [a[0], b[0]] # x range is a horizontal edge, exists at two y vals
+    rectangleYRange = [a[1], b[1]] # y range is a vertical edge, exists at two x vals
+    # print(rectangleXRange)
+    # print(rectangleYRange)
+
+    for y in rectangleYRange: # the two y values where horzontal edges are
+        # print("for edge at y=" + str(y))
+        # print("Shape Y ranges " + str(yShapeRanges[y]))
+        # does x overlap entirely with a range in yRanges[y]
+        # carry on if there's any range
+        foundAFittingYRange = False
+        for yShapeRange in yShapeRanges[y]: # compare shape and rectangles' ranges at y
+            # print("checking if " + str(rectangleXRange) + " is in " + str(yShapeRange))
+            # if both ends of the edge are within one range then we're good
+            if( isInRange(rectangleXRange[0], yShapeRange) and isInRange(rectangleXRange[1], yShapeRange)):
+                # we've got a range the edge fits in
+                foundAFittingYRange = True
+        if(foundAFittingYRange != True):
+            # this edge doesn't work
+            # print("NOPE")
+            return False
+        
+    # print("Horizontal edges were fine")
+    
+    for x in rectangleXRange:
+        # print("for edge at x=" + str(x))
+        # print("Shape X ranges " + str(xShapeRanges[x]))
+        # does x overlap entirely with a range in yRanges[y]
+        foundAFittingXRange = False
+        for xShapeRange in xShapeRanges[x]:
+            # print("checking if " + str(rectangleYRange) + " is in " + str(xShapeRange))
+            if( isInRange(rectangleYRange[0], xShapeRange) and isInRange(rectangleYRange[1], xShapeRange)):
+                # we've got a range the edge fits in
+                foundAFittingXRange = True
+        if(foundAFittingXRange != True):
+            # this edge doesn't work
+            # print("NOPE")
+            return False        
+            
+    # print("Vertical edges were fine")
+    # print("Rectangle fits in ranges!")
+    return True
 
 timeToStop = False
 # for candidateRectangle in area dict -> defined by co-ordinates
@@ -219,16 +374,14 @@ for key in keys:
     for rectangle in rectangles:
         # print(rectangle)
         rectangle = sortCoordinatePair(rectangle[0], rectangle[1])
-        print("Look at rectangle defined by " + str(rectangle))
-        if(areAllPointsInShape(rectangle)):
-            print("Part 2: " + str(key))
-            exit()
-        
-        # TODO: use range syntax? over rows - from earlier problems
+        # print("Look at rectangle defined by " + str(rectangle))
+        # print("...which has area " + str(key))
 
-# get all the points inside the rectangle
-# check if any of them are outside?
-# start from the opposite corners
-# should I have started from smallest rectangle? No, can't assume they're all good
-# can I remove rectangles that are strictly inside other ones? Only if the bigger ones are good
-# flip that - if I find a bad rectangle, I can remove any that contain it
+        # TODO: doesn't work because ranges are wrong
+        if(areRectangleEdgesInRanges(rectangle)):
+            print("Part 2: " + str(key)) # 1624057680
+            exit()
+
+        # if(areAllPointsInShape(rectangle)):
+        #     print("Part 2: " + str(key))
+        #     exit()
