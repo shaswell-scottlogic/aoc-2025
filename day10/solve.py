@@ -25,6 +25,7 @@ def flip(bit):
 
 # expect [1, 0, 0 etc] and (0, 3, 4)
 def pressButton(indicator, buttonString):
+    # TODO: make this work properly
     for lightNum in buttonString:
         indicator[int(lightNum)] = flip(indicator[int(lightNum)])
     return indicator
