@@ -171,10 +171,6 @@ for line in lines:
     def checkNextButton(state, thisButtonIndex, remainingButtonIndexes):        
         newState = pressButton(state, buttons[thisButtonIndex])
 
-        # print("---")
-        # print(state)
-        # print(bindicator)
-        # print("---")
         if(newState == bindicator): # we're done
             print("Boom " + str(thisButtonIndex))
             return [[thisButtonIndex]] # only if after applying
@@ -204,8 +200,42 @@ for line in lines:
         # ? check for buttons that change the right number of positions first <- FAST
         # use a cache, make the check ignore order (or always sort)
 
+    buttonComboCache = []
+    def checkButtons(existingState, remainingBIndexes):
+        remainingBIndexes.sort()
+        if(remainingBIndexes in buttonComboCache):
+            # print("cache hit")
+            return []
+        else:
+            # print("cache miss")
+            buttonComboCache.append(remainingBIndexes)
+
+        newButtonCombinations = []
+        for buttonIndex in remainingBIndexes:
+            newState = pressButton(existingState, buttons[buttonIndex])
+
+            if(newState == bindicator): # we're done
+                # print("Boom " + str(buttonIndex))
+                return [[buttonIndex]]
+            
+            if(len(remainingButtonIndexes) == 0): # hit a dead end
+                # print("Run out of buttons")
+                return []
+
+            buttonsMinusThisOne = [x for x in remainingButtonIndexes if x != buttonIndex]
+            childButtonCombinations = checkButtons(newState, buttonsMinusThisOne)
+
+            if(len(childButtonCombinations)!=0):
+                print("Got: " + str(childButtonCombinations))
+                print("Need to add it to " + str(newButtonCombinations))
+                newButtonCombinations = newButtonCombinations + [([buttonIndex] + c) for c in childButtonCombinations]
+                print("combinations: " + str(newButtonCombinations))
+            
+        return newButtonCombinations
+
     # TODO: need to refactor to not need to apply button straight away? Otherwise we start assuming too many buttons
-    answers = checkNextButton(workingString, remainingButtonIndexes[0], remainingButtonIndexes)
+    # answers = checkNextButton(workingString, remainingButtonIndexes[0], remainingButtonIndexes)
+    answers = checkButtons(workingString, remainingButtonIndexes)
     for combo in answers:
         print("buttons at indexes " + str(combo + mandatoryButtons))
 
