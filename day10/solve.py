@@ -23,12 +23,15 @@ def indicatorToChangeIndexes(indicator):
 def flip(bit):
     return 0 if bit==1 else 1
 
-# expect [1, 0, 0 etc] and (0, 3, 4)
-def pressButton(indicator, buttonString):
-    # TODO: make this work properly
-    for lightNum in buttonString:
-        indicator[int(lightNum)] = flip(indicator[int(lightNum)])
-    return indicator
+# expect [1, 0, 0 etc] and button [1, 3, 5]
+def pressButton(oldIndicator, button):
+    newIndicator = []
+    for i in range (0, len(oldIndicator)):
+        if(i in button):
+            newIndicator.append(flip(oldIndicator[i]))
+        else:
+            newIndicator.append(oldIndicator[i])
+    return newIndicator
 
 # def getPositionsAffected(button):
 
@@ -42,7 +45,7 @@ for line in lines:
     indicator, rest = line.split(']')
     indicator = indicator[1:]
     indicator.strip()
-    # bindicator = indicatorToBinaryString(indicator)
+    bindicator = indicatorToBinaryString(indicator)
     positionsToChange = indicatorToChangeIndexes(indicator)
     # print(bindicator)
 
@@ -51,6 +54,7 @@ for line in lines:
     uglyButtonStrings = utils.removeAllInstancesOf(buttonString.split(' '), '')
     buttons = [[int(position) for position in utils.removeAllInstancesOf(singleButton[1: -1].split(','), '')] for singleButton in uglyButtonStrings]
     # print(buttons)
+    # BUTTONS ARE NOW LIST[INT]
 
     # TODO: check button arrays are even length-ed
 
@@ -95,8 +99,8 @@ for line in lines:
         else:
             buttonsByChangeCount[changeCount] = [i]
 
-    for item in buttonsByChangeCount:
-        print(item)
+    # for item in buttonsByChangeCount:
+        # print(item)
 
     # for item in positionButtonMap:
     #     print(item)
@@ -126,34 +130,89 @@ for line in lines:
     for item in positionButtonMap:
         if(item in positionsToChange):
             if(len(positionButtonMap[item])==1):
-                mandatoryButtons.append(buttons[positionButtonMap[item][0]])
+                mandatoryButtons.append(positionButtonMap[item][0])
         else: # position doesn't need to change
             # if there's something in here with length 1, then add it to the excluded list
             for buttonIndex in positionButtonMap[item]:
                 if(len(buttons[buttonIndex])==1):
-                    excludedButtons.append(buttons[buttonIndex])
+                    excludedButtons.append(buttonIndex)
     print(mandatoryButtons)
     print(excludedButtons)
+    print()
     
+    # Off we go
+    workingString = startString
+    print("Aiming for " + str(bindicator))
 
-    # TODO: new starting point is string with the mandatory buttons applied <- check that it's not done already
-    for button in mandatoryButtons:
-        startString = pressButton(indicator, button)
+    # so apply the mandatory buttons
+    for buttonIndex in mandatoryButtons:
+        workingString = pressButton(workingString, buttons[buttonIndex])
+        print(workingString)
     
-    if(startString == indicator):
-        print('Done after mandatory buttons')
-    else:
-        print('Not done, but maybe closer')
-        # now go back to the big list
-        # TODO: 
+    if(len(mandatoryButtons) >= 1):
+        if(workingString == bindicator):
+            print('Done after mandatory buttons')
+        else:
+            print('Not done, but maybe closer')
 
-        # and a list of buttons to apply that excludes mandatory and excluded buttons
-        # then recurse over combinations of the others
+
+    # now we find which buttons we have left to explore
+    nope = mandatoryButtons + excludedButtons
+    # print("nope " + str(nope))
+    remainingButtonIndexes = [x for x in list(range(0, len(buttons))) if x not in nope]
+
+    # now we've reduced the problem size
+    # print("starting with " + str(workingString))
+    # print("remaining button indexes: " + str(remainingButtonIndexes))
+    # print(buttons)
+
+    # recurse over combinations of the others
+    # with a cache so that we don't repeat sub-groups? Or just pass remaining[1:]
+    def checkNextButton(state, thisButtonIndex, remainingButtonIndexes):        
+        newState = pressButton(state, buttons[thisButtonIndex])
+
+        # print("---")
+        # print(state)
+        # print(bindicator)
+        # print("---")
+        if(newState == bindicator): # we're done
+            print("Boom " + str(thisButtonIndex))
+            return [[thisButtonIndex]] # only if after applying
+        
+        if(len(remainingButtonIndexes) == 0): # hit a dead end
+            print("Run out of buttons")
+            return []
+        # if(newState == startString): # is getting back to an earlier state bad? won't happen if there were any mandatory buttons
+
+        newButtonCombinations = []
+        buttonsMinusThisOne = [x for x in remainingButtonIndexes if x != thisButtonIndex]
+        # print("buttonsMinusThisOne " + str(buttonsMinusThisOne))
+        # for each button, call this on other set
+        for buttonIndex in buttonsMinusThisOne:
+            childButtonCombinations = checkNextButton(newState, buttonIndex, buttonsMinusThisOne)
+            if(len(childButtonCombinations)!=0):
+                # print("cool, add that")
+                print("Got: " + str(childButtonCombinations))
+                print("Need to add it to " + str(newButtonCombinations))
+                newButtonCombinations = newButtonCombinations + [([thisButtonIndex] + c) for c in childButtonCombinations]
+                print("combinations: " + str(newButtonCombinations))
+
+        return newButtonCombinations
+        # then add the mandatory button(s) to the sequence we've found
 
         # recurse looking for combinations of buttons that change the right things
         # ? check for buttons that change the right number of positions first <- FAST
         # use a cache, make the check ignore order (or always sort)
 
+    # TODO: need to refactor to not need to apply button straight away? Otherwise we start assuming too many buttons
+    answers = checkNextButton(workingString, remainingButtonIndexes[0], remainingButtonIndexes)
+    for combo in answers:
+        print("buttons at indexes " + str(combo + mandatoryButtons))
+
+        print("buttons: " + str([buttons[i] for i in combo + mandatoryButtons]))
+        # print(mandatoryButtons)
+
+    exit() # do one only
     print()
 
 
