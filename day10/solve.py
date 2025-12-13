@@ -68,8 +68,7 @@ for line in lines:
 
     # something about hamming distance?
     # can I use hamming distance to select the correct button somehow?
-    # is that overkill?
-    # do I just need to combine things until done
+    # is that overkill? do I just need to combine things until done
 
     # TODO:
     # some combinations of buttons are functionally equivalent to other buttons?
@@ -168,33 +167,32 @@ for line in lines:
 
     # recurse over combinations of the others
     # with a cache so that we don't repeat sub-groups? Or just pass remaining[1:]
-    def checkNextButton(state, thisButtonIndex, remainingButtonIndexes):        
-        newState = pressButton(state, buttons[thisButtonIndex])
+    # def checkNextButton(state, thisButtonIndex, remainingButtonIndexes):        
+    #     newState = pressButton(state, buttons[thisButtonIndex])
 
-        if(newState == bindicator): # we're done
-            print("Boom " + str(thisButtonIndex))
-            return [[thisButtonIndex]] # only if after applying
+    #     if(newState == bindicator): # we're done
+    #         print("Boom " + str(thisButtonIndex))
+    #         return [[thisButtonIndex]] # only if after applying
         
-        if(len(remainingButtonIndexes) == 0): # hit a dead end
-            print("Run out of buttons")
-            return []
-        # if(newState == startString): # is getting back to an earlier state bad? won't happen if there were any mandatory buttons
+    #     if(len(remainingButtonIndexes) == 0): # hit a dead end
+    #         print("Run out of buttons")
+    #         return []
+    #     # if(newState == startString): # is getting back to an earlier state bad? won't happen if there were any mandatory buttons
 
-        newButtonCombinations = []
-        buttonsMinusThisOne = [x for x in remainingButtonIndexes if x != thisButtonIndex]
-        # print("buttonsMinusThisOne " + str(buttonsMinusThisOne))
-        # for each button, call this on other set
-        for buttonIndex in buttonsMinusThisOne:
-            childButtonCombinations = checkNextButton(newState, buttonIndex, buttonsMinusThisOne)
-            if(len(childButtonCombinations)!=0):
-                # print("cool, add that")
-                print("Got: " + str(childButtonCombinations))
-                print("Need to add it to " + str(newButtonCombinations))
-                newButtonCombinations = newButtonCombinations + [([thisButtonIndex] + c) for c in childButtonCombinations]
-                print("combinations: " + str(newButtonCombinations))
+    #     newButtonCombinations = []
+    #     buttonsMinusThisOne = [x for x in remainingButtonIndexes if x != thisButtonIndex]
+    #     # print("buttonsMinusThisOne " + str(buttonsMinusThisOne))
+    #     # for each button, call this on other set
+    #     for buttonIndex in buttonsMinusThisOne:
+    #         childButtonCombinations = checkNextButton(newState, buttonIndex, buttonsMinusThisOne)
+    #         if(len(childButtonCombinations)!=0):
+    #             # print("cool, add that")
+    #             print("Got: " + str(childButtonCombinations))
+    #             print("Need to add it to " + str(newButtonCombinations))
+    #             newButtonCombinations = newButtonCombinations + [([thisButtonIndex] + c) for c in childButtonCombinations]
+    #             print("combinations: " + str(newButtonCombinations))
 
-        return newButtonCombinations
-        # then add the mandatory button(s) to the sequence we've found
+    #     return newButtonCombinations
 
         # recurse looking for combinations of buttons that change the right things
         # ? check for buttons that change the right number of positions first <- FAST
@@ -202,42 +200,57 @@ for line in lines:
 
     buttonComboCache = []
     def checkButtons(existingState, remainingBIndexes):
+        print("New iteration ---------------")
+
+        # what does this do? does it keep the path?
+        if( len(remainingBIndexes) == 0 ):
+            print("Run out of buttons")
+            return []
+
         remainingBIndexes.sort()
         if(remainingBIndexes in buttonComboCache):
-            # print("cache hit")
+            print("cache hit")
             return []
         else:
-            # print("cache miss")
+            print("cache miss")
             buttonComboCache.append(remainingBIndexes)
 
         newButtonCombinations = []
         for buttonIndex in remainingBIndexes:
+            print("buttonIndex is: " + str(buttonIndex))
+            print("Button is " + str(buttons[buttonIndex]))
             newState = pressButton(existingState, buttons[buttonIndex])
+            childButtonCombinations = []
 
             if(newState == bindicator): # we're done
-                # print("Boom " + str(buttonIndex))
-                return [[buttonIndex]]
-            
-            if(len(remainingButtonIndexes) == 0): # hit a dead end
-                # print("Run out of buttons")
-                return []
+                print("Boom " + str(buttonIndex))
+                childButtonCombinations = [[buttonIndex]]
+            else:
+                print("Looking at a child")
+                buttonsMinusThisOne = [x for x in remainingBIndexes if x != buttonIndex]
+                print("Buttons minus this one: " + str(buttonsMinusThisOne))
+                childButtonCombinations = checkButtons(newState, buttonsMinusThisOne)
 
-            buttonsMinusThisOne = [x for x in remainingButtonIndexes if x != buttonIndex]
-            childButtonCombinations = checkButtons(newState, buttonsMinusThisOne)
-
-            if(len(childButtonCombinations)!=0):
-                print("Got: " + str(childButtonCombinations))
-                print("Need to add it to " + str(newButtonCombinations))
-                newButtonCombinations = newButtonCombinations + [([buttonIndex] + c) for c in childButtonCombinations]
-                print("combinations: " + str(newButtonCombinations))
-            
+            if( len(childButtonCombinations) != 0):
+                print()
+                print("Got child combos: " + str(childButtonCombinations))
+                extendedChildButtonCombos = [(c + [buttonIndex]) for c in childButtonCombinations]
+                print("With this node added: " + str(extendedChildButtonCombos))
+                newButtonCombinations = newButtonCombinations + extendedChildButtonCombos
+                print("Accumulated: " + str(newButtonCombinations))
+                print()
+        
+        # pathsWithThisNode = [(c + [buttonIndex]) for c in newButtonCombinations]
+        print("After this iteration: " + str(newButtonCombinations))
         return newButtonCombinations
 
     # TODO: need to refactor to not need to apply button straight away? Otherwise we start assuming too many buttons
     # answers = checkNextButton(workingString, remainingButtonIndexes[0], remainingButtonIndexes)
     answers = checkButtons(workingString, remainingButtonIndexes)
     for combo in answers:
-        print("buttons at indexes " + str(combo + mandatoryButtons))
+        print("Combo:")
+        print("buttons at indexes " + str(combo))# + mandatoryButtons))
+        print("mandatory: " + str(mandatoryButtons))
 
         print("buttons: " + str([buttons[i] for i in combo + mandatoryButtons]))
         # print(mandatoryButtons)
